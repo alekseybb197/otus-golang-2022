@@ -17,10 +17,12 @@ func TestUnpack(t *testing.T) {
 		{input: "", expected: ""},
 		{input: "aaa0b", expected: "aab"},
 		// uncomment if task with asterisk completed
-		// {input: `qwe\4\5`, expected: `qwe45`},
-		// {input: `qwe\45`, expected: `qwe44444`},
-		// {input: `qwe\\5`, expected: `qwe\\\\\`},
-		// {input: `qwe\\\3`, expected: `qwe\3`},
+		{input: `qwe\4\5`, expected: `qwe45`},
+		{input: `qwe\45`, expected: `qwe44444`},
+		{input: `qwe\\5`, expected: `qwe\\\\\`},
+		{input: `qwe\\\3`, expected: `qwe\3`},
+		// add extension test
+		{input: `q\swe\\\3`, expected: `q we\3`},
 	}
 
 	for _, tc := range tests {
@@ -40,6 +42,42 @@ func TestUnpackInvalidString(t *testing.T) {
 		t.Run(tc, func(t *testing.T) {
 			_, err := Unpack(tc)
 			require.Truef(t, errors.Is(err, ErrInvalidString), "actual error %q", err)
+		})
+	}
+}
+
+func TestUnpackUnusableSymbol(t *testing.T) {
+	// special symbol inside string
+	invalidStrings := []string{"aaa\arrr"}
+	for _, tc := range invalidStrings {
+		tc := tc
+		t.Run(tc, func(t *testing.T) {
+			_, err := Unpack(tc)
+			require.Truef(t, errors.Is(err, ErrUnusableSymbol), "actual error %q", err)
+		})
+	}
+}
+
+func TestUnpackUnusableSpecSymbol(t *testing.T) {
+	// unsupported special symbol in slash extension
+	invalidStrings := []string{`gg\as`, `gg\\\as`}
+	for _, tc := range invalidStrings {
+		tc := tc
+		t.Run(tc, func(t *testing.T) {
+			_, err := Unpack(tc)
+			require.Truef(t, errors.Is(err, ErrUnusableSpecSymbol), "actual error %q", err)
+		})
+	}
+}
+
+func TestUnpackInvalidTail(t *testing.T) {
+	// unused slash at string tail
+	invalidStrings := []string{`ggtts\`}
+	for _, tc := range invalidStrings {
+		tc := tc
+		t.Run(tc, func(t *testing.T) {
+			_, err := Unpack(tc)
+			require.Truef(t, errors.Is(err, ErrInvalidTail), "actual error %q", err)
 		})
 	}
 }
