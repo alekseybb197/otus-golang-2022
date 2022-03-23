@@ -30,8 +30,8 @@ func Top10(s string) []string {
 		}
 	}
 
-	wis := make([]wi, 0)   // slice of word index pair
-	for w, i := range fs { // convert map to slice of struct wi
+	wis := make([]wi, 0, 256) // slice of word index pair
+	for w, i := range fs {    // convert map to slice of struct wi
 		wis = append(wis, wi{w, i})
 	}
 
