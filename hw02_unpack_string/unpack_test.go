@@ -23,6 +23,8 @@ func TestUnpack(t *testing.T) {
 		{input: `qwe\\\3`, expected: `qwe\3`},
 		// add extension test
 		{input: `q\swe\\\3`, expected: `q we\3`},
+		// check non ascii
+		{input: "еее0л", expected: "еел"},
 	}
 
 	for _, tc := range tests {
